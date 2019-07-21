@@ -69,11 +69,7 @@ def model():
     w_conv_2 = init_w([3, 3, 32, 64])
     b_conv_2 = init_b([64])
     conv_2 = conv(conv_1, w_conv_2, b_conv_2, stride=2)
-    '''
-    w_conv_3 = init_w([3, 32, 64, 128])
-    b_conv_3 = init_b([128])
-    conv_3 = conv(conv_2, w_conv_3, b_conv_3, stride=2)
-    '''
+
     # 全连接层
     fully_conn_1 = dense(input_data=conv_2, output_units=128, activation=tf.nn.relu)
     dropout_fully_conn_1 = dropout(fully_conn_1, DROPOUT_RATE)
@@ -171,9 +167,9 @@ def train_model(learning_rate=0.001, batch_size=32, dropout_rate=0.2, val_steps=
 
 if __name__ == '__main__':
     # 训练集
-    train_set = DataSet(NORMAL_PATH, r"E:\Weilan\easy\train.csv")
+    train_set = DataSet(DATA_PATH, DATA_PATH + r"\train.csv")
     # 验证集
-    val_set = DataSet(NORMAL_PATH, r"E:\Weilan\easy\val.csv")
+    val_set = DataSet(DATA_PATH, DATA_PATH + r"\val.csv")
 
     if not os.path.exists(MODEL_DIR):
         os.makedirs(MODEL_DIR)

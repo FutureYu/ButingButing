@@ -11,6 +11,98 @@ dest_dir = "train_data/"  # 训练文件存储的路径
 test_dir = "test_data/"  # 测试文件存储的路径
 
 
+class DataSet(object):
+    def __init__(self, images_dir, csv_file_path, shuffle=True):
+        """
+        初始化数据集
+        :param images_dir: 图片目录地址
+        :param csv_file_path: 标注数据的.csv文件地址
+        :param shuffle: 是否打乱顺序
+        """
+        self.shuffle = shuffle
+        self.csv_data = pd.read_csv(csv_file_path)
+        self.csv_data["ImagePath"] = [os.path.join(images_dir, file_name) for file_name in self.csv_data['ImageName']]
+        self.pool = list()
+        self.num_epoch = -1
+
+    def get_size(self):
+        """
+        获取数据集大小
+        :return: 数据集大小
+        """
+        return self.csv_data.shape[0]
+
+    def reset_pool(self):
+        """
+        初始化采样池
+        :return: None
+        """
+        self.pool = [_ for _ in range(self.get_size())]
+        if self.shuffle:
+            random.shuffle(self.pool)
+
+    @staticmethod
+    def read_image(path):
+        """
+        读取图片数据
+        :param path: 图片路径
+        :return: 图像数据矩阵
+        """
+        return io.imread(path) / 255.0
+
+    @staticmethod
+    def id_to_onehot(category_id):
+        """
+        将分类ID转换为独热向量
+        :param category_id: 分类ID
+        :return: 独热向量
+        """
+        onehot = np.zeros([CATEGORY_COUNT])
+        onehot[category_id - 1] = 1
+        return onehot
+
+    @staticmethod
+    def onehot_to_id(onehot):
+        """
+        将独热向量转换为分类ID
+        :param onehot: 独热向量
+        :return: 分类ID
+        """
+        return np.argmax(onehot) + 1
+
+    def _get_batch_indices(self, size):
+        ndx_list = list()
+        if size >= len(self.pool):
+            remain = size - len(self.pool)
+            ndx_list.extend(self.pool)
+            self.reset_pool()
+            self.num_epoch += 1
+            ndx_list.extend(self._get_batch_indices(remain))
+        elif size > 0:
+            ndx_list.extend(self.pool[:size])
+            self.pool = self.pool[size:]
+        return ndx_list
+
+    def get_batch(self, size):
+        """
+        获取一个批次的采样数据
+        :param size: 批次大小
+        :return: 图像数据和对应的标签
+        """
+        ndx_list = self._get_batch_indices(size)
+        data = [DataSet.read_image(self.csv_data["ImagePath"][ndx]) for ndx in ndx_list]
+        label = [DataSet.id_to_onehot(self.csv_data["CategoryId"][ndx]) for ndx in ndx_list]
+        return data, label
+
+    def __iter__(self):
+        """
+        遍历所有采样数据和对应的标签
+        :return: 单个采样数据和对应的标签
+        """
+        for p, c in zip(self.csv_data["ImagePath"], self.csv_data["CategoryId"]):
+            yield DataSet.read_image(p), DataSet.id_to_onehot(c), p, c
+
+
 def split_train_and_val_data_set(src_csv_path, train_csv_path, val_csv_path):
     """
     从原始数据集中分离出训练集和验证集

@@ -7,7 +7,10 @@ CATEGORY_COUNT = 20
 IMAGE_WIDTH = 28
 IMAGE_HEIGHT = 28
 
-NORMAL_PATH = r"E:\Weilan\easy\norm_data_L90"
+DATA_PATH = r"..\data"
+TEST_PATH = r"..\test"
+MODEL_PATH = r"..\model"
+SUMMARY_PATH = r"..\summary"
 
 import time
 
