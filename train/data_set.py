@@ -5,6 +5,8 @@ import os
 import csv
 import pandas as pd
 import random
+from skimage import io
+from rpi_define import *
 
 npy_dir = "data_npy/"  # npy文件夹路径
 dest_dir = "train_data/"  # 训练文件存储的路径
@@ -167,4 +169,4 @@ if __name__ == "__main__":
     #     file_writer.writerow(["ImageName", "CategoryId"])
     #     for name in names:
     #         npy2png(npy_dir, dest_dir, test_dir, name)
-    split_train_and_val_data_set(f"{dest_dir}data.csv", "train.csv", "val.csv")
+    split_train_and_val_data_set(rf"{DATA_PATH}\data.csv", rf"{DATA_PATH}\train.csv", rf"{DATA_PATH}\val.csv")

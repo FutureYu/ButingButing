@@ -8,7 +8,7 @@ import os
 import time
 
 
-MODEL_PATH = os.path.abspath('./model/retail_product_recognize.model')
+MODEL_PATH = os.path.abspath('./model/recognize.model')
 MODEL_DIR = os.path.dirname(MODEL_PATH)
 print(MODEL_DIR)
 
