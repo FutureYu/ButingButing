@@ -1,6 +1,8 @@
 data_npy
 data
 test
+summary
+model
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
