@@ -1,5 +1,5 @@
 # 不听不听·涂鸦识别
-
+**使用前先运行命令`pip install -r requestments.txt`**
 
 ## 1. 项目说明
 - 数据集来自 Google QuickDraw 项并开源目，感谢他们团队对人工智能发展做出的贡献

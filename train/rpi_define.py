@@ -7,6 +7,8 @@ CATEGORY_COUNT = 20
 IMAGE_WIDTH = 28
 IMAGE_HEIGHT = 28
 
+BUTING_PATH = r"E://ButingButing"
+
 
 import time
 

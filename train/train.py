@@ -8,9 +8,9 @@ import os
 import time
 
 
-MODEL_PATH = os.path.abspath('./model/recognize.model')
-MODEL_DIR = os.path.dirname(MODEL_PATH)
-print(MODEL_DIR)
+MODEL_PATH = BUTING_PATH + r'/model/recognize.model'
+MODEL_DIR = BUTING_PATH + r'/model'
+DATA_PATH = BUTING_PATH + r"/data"
 
 
 def init_w(shape):
@@ -123,10 +123,10 @@ def train_model(learning_rate=0.001, batch_size=32, dropout_rate=0.2, val_steps=
         last_check_point = tf.train.latest_checkpoint(MODEL_DIR)
         if last_check_point is not None:
             saver.restore(sess, last_check_point)
-            print('restore from {}'.format(last_check_point))
+            Log('restore from {}'.format(last_check_point))
             step = int(str(last_check_point).split('-')[-1])
 
-        print('start training ...')
+        Log('Start training ...')
 
         # 开始训练
         last_acc = 0.0
@@ -139,11 +139,11 @@ def train_model(learning_rate=0.001, batch_size=32, dropout_rate=0.2, val_steps=
                 batch_x_val, batch_y_val = val_set.get_batch(50)
                 acc, val_loss, pred = sess.run([accuracy, loss, max_idx_p],
                                                feed_dict={INPUT: batch_x_val, LABEL: batch_y_val, DROPOUT_RATE: 0.0})
-                print('step {} acc {}'.format(step, acc))
+                Log('step {} acc {}'.format(step, acc))
 
                 # 如果效果有优化就保存当前的模型参数
                 if acc > last_acc or val_loss < last_loss:
-                    print('save model at step {}'.format(step))
+                    Log('save model at step {}'.format(step))
                     saver.save(sess, MODEL_PATH, global_step=step)
                     last_acc = acc
                     last_loss = val_loss
@@ -155,8 +155,7 @@ def train_model(learning_rate=0.001, batch_size=32, dropout_rate=0.2, val_steps=
             train_summary, _, train_loss, train_acc = sess.run(
                 [merge_summary, train_op, loss, accuracy],
                 feed_dict={INPUT: batch_x, LABEL: batch_y, DROPOUT_RATE: dropout_rate})
-            print(datetime.datetime.now().strftime('%H:%M:%S'),end = ": ")
-            print('step [%d]  loss=%.8f  accuracy=%.8f' % (step, train_loss, train_acc))
+            Log('step [%d]  loss=%.8f  accuracy=%.8f' % (step, train_loss, train_acc))
             # 写入日志
             train_writer.add_summary(train_summary, step)
 
