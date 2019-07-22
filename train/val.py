@@ -1,6 +1,8 @@
 # encoding: utf-8
 
 import tensorflow as tf
+import os
+import csv
 from rpi_define import *
 from data_set import DataSet
 from train import MODEL_DIR, model, INPUT, LABEL, DROPOUT_RATE
@@ -9,19 +11,21 @@ from train import MODEL_DIR, model, INPUT, LABEL, DROPOUT_RATE
 # 在验证集上测试准确率
 if __name__ == '__main__':
     # 验证集图片文件夹地址
-    NORM_IMAGE_DIR = NORMAL_PATH
+    DATA_DIR = BUTING_PATH + r"\data"
     # 验证集标注数据
-    VAL_CSV_PATH = r"E:\Weilan\easy\val.csv"
-
+    VAL_CSV_PATH = BUTING_PATH + r"\data\val.csv"
+    LOG_PATH = BUTING_PATH + rf"\log"
+    LOG_CSV_PATH = LOG_PATH + rf"\val_{today()}.csv"
     # 创建验证集对象
-    val_set = DataSet(NORM_IMAGE_DIR, VAL_CSV_PATH)
+    val_set = DataSet(DATA_DIR, VAL_CSV_PATH)
 
     # 加载训练好的模型进行预测
     output = model()
     predict = tf.reshape(output, [-1, CATEGORY_COUNT])
     max_idx_p = tf.argmax(predict, 1)
     max_idx_l = tf.argmax(tf.reshape(LABEL, [-1, CATEGORY_COUNT]), 1)
-    accuracy = tf.reduce_mean(tf.cast(tf.equal(max_idx_p, max_idx_l), tf.float32))
+    accuracy = tf.reduce_mean(
+        tf.cast(tf.equal(max_idx_p, max_idx_l), tf.float32))
 
     saver = tf.train.Saver()
     with tf.Session() as sess:
@@ -37,14 +41,21 @@ if __name__ == '__main__':
             result[image_path] = {"label": category_id, "predict": pred + 1}
 
         # 打印准确率
-        print('accuracy={}'.format(all_acc / val_set.get_size()))
+        Log('accuracy={}'.format(all_acc / val_set.get_size()))
 
         # 打印预测错的结果
         i = 0
+
+        if not os.path.exists(LOG_PATH):
+            os.makedirs(LOG_PATH)
+        Errorcsv = open(LOG_CSV_PATH, "w", newline="")
+        writer = csv.writer(Errorcsv)
+        writer.writerow(['number', 'path', 'label', 'predict'])
+
         for image_path in result:
             if result[image_path]["label"] != result[image_path]["predict"]:
-                print('[{}]: [{}]\tlabel={} - predict={}'.format(
-                    i, image_path, result[image_path]["label"], result[image_path]["predict"]))
+                writer.writerow(
+                    [i, image_path, result[image_path]["label"], result[image_path]["predict"]])
                 i += 1
-        print('accuracy={}'.format(all_acc / val_set.get_size()))
 
+        Errorcsv.close()

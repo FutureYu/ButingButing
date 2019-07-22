@@ -7,10 +7,10 @@ import pandas as pd
 import random
 from skimage import io
 from rpi_define import *
+import shutil
 
-npy_dir = "data_npy/"  # npy文件夹路径
-dest_dir = "train_data/"  # 训练文件存储的路径
-test_dir = "test_data/"  # 测试文件存储的路径
+npy_dir = BUTING_PATH + r"\data_npy"  # npy文件夹路径
+dest_dir = BUTING_PATH + r"\data"  # 训练文件存储的路径
 
 
 class DataSet(object):
@@ -23,7 +23,8 @@ class DataSet(object):
         """
         self.shuffle = shuffle
         self.csv_data = pd.read_csv(csv_file_path)
-        self.csv_data["ImagePath"] = [os.path.join(images_dir, file_name) for file_name in self.csv_data['ImageName']]
+        self.csv_data["ImagePath"] = [os.path.join(
+            images_dir, file_name) for file_name in self.csv_data['ImageName']]
         self.pool = list()
         self.num_epoch = -1
 
@@ -50,7 +51,7 @@ class DataSet(object):
         :param path: 图片路径
         :return: 图像数据矩阵
         """
-        return io.imread(path) / 255.0
+        return (io.imread(path, as_gray = True) / 255.0).reshape([28, 28, 1])
 
     @staticmethod
     def id_to_onehot(category_id):
@@ -92,8 +93,10 @@ class DataSet(object):
         :return: 图像数据和对应的标签
         """
         ndx_list = self._get_batch_indices(size)
-        data = [DataSet.read_image(self.csv_data["ImagePath"][ndx]) for ndx in ndx_list]
-        label = [DataSet.id_to_onehot(self.csv_data["CategoryId"][ndx]) for ndx in ndx_list]
+        data = [DataSet.read_image(self.csv_data["ImagePath"][ndx])
+                for ndx in ndx_list]
+        label = [DataSet.id_to_onehot(self.csv_data["CategoryId"][ndx]) 
+                for ndx in ndx_list]
         return data, label
 
     def __iter__(self):
@@ -105,68 +108,53 @@ class DataSet(object):
             yield DataSet.read_image(p), DataSet.id_to_onehot(c), p, c
 
 
-def split_train_and_val_data_set(src_csv_path, train_csv_path, val_csv_path):
-    """
-    从原始数据集中分离出训练集和验证集
-    :param src_csv_path: 原始数据集标注.csv文件地址
-    :param train_csv_path: 生成的训练集数据标注.csv文件地址
-    :param val_csv_path: 生成的验证集数据标注.csv文件地址
-    :return: None
-    """
-    file_train = open(train_csv_path, 'w', newline='')
-    train_writer = csv.writer(file_train)
-    train_writer.writerow(["ImageName", "CategoryId"])
-
-    file_val = open(val_csv_path, 'w', newline='')
-    val_writer = csv.writer(file_val)
-    val_writer.writerow(["ImageName", "CategoryId"])
-
-    csv_data = pd.read_csv(src_csv_path)
-
-    categories = set()
-    for i in range(csv_data.shape[0]):
-        category = csv_data["CategoryId"][i]
-        if (category not in categories) or (random.randint(0, 9) > 0):
-            train_writer.writerow([csv_data["ImageName"][i], category])
-            categories.add(category)
-        else:
-            val_writer.writerow([csv_data["ImageName"][i], category])
-
-
-
-def npy2png(npy_dir, dest_dir, test_dir, name):
+def npy2png(npy_dir, dest_dir, name, catergory_id, train_num):
     if not os.path.exists(npy_dir):
+        Log("npy not exists")  # 数据集不存在
         os.makedirs(npy_dir)
     if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
-    if not os.path.exists(test_dir):
-        os.makedirs(test_dir)
-    with open(f"{dest_dir}data.csv", 'a', newline='') as file_train:
+    with open(fr"{dest_dir}\train.csv", 'a', newline='') as file_train:
         train_writer = csv.writer(file_train)
-        con_arr = np.load(f"{npy_dir}{name}.npy")  # 读取npy文件
-        for i in range(0, 5000):  # 循环数组 最大值为图片张数  三维数组分别是：图片张数
+        con_arr = np.load(f"{npy_dir}\{name}.npy")  # 读取npy文件
+        for i in range(0, train_num):  # 循环数组 最大值为图片张数  三维数组分别是：图片张数
             arr = con_arr[i, :]  # 获得第i张的单一数组
             arr = arr.reshape([28, 28])
-            plt.imsave(f"{dest_dir}{name}-{i}.png", arr, cmap='gray')  # 定义命名规则，保存图片为彩色模式
-            train_writer.writerow([f"{dest_dir}{name}-{i}.png", f"{name}"])
-        print(f"{name}-train_data, finish")
-    with open(f"{test_dir}test.csv", 'a', newline='') as file_test:
+            plt.imsave(rf"{dest_dir}\{name}-{i}.png", arr, cmap='gray')  # 定义命名规则，保存图片为灰色模式
+            train_writer.writerow([f"{name}-{i}.png", f"{catergory_id}"])
+        Log(f"{name}-train_data, finish")
+    with open(rf"{dest_dir}\val.csv", 'a', newline='') as file_test:
         test_writer = csv.writer(file_test)
-        for i in range(5000, 6000):  # 循环数组 最大值为图片张数  三维数组分别是：图片张数
+        for i in range(train_num, train_num + 1000):  # 循环数组 最大值为图片张数  三维数组分别是：图片张数
             arr = con_arr[i, :]  # 获得第i张的单一数组
             arr = arr.reshape([28, 28])
-            plt.imsave(f"{test_dir}{name}-{i}.png", arr, cmap='gray')  # 定义命名规则，保存图片为彩色模式
-            test_writer.writerow([f"{test_dir}{name}-{i}.png", f"{name}"])
-        print(f"{name}-test_data, finish")
-    
+            plt.imsave(rf"{dest_dir}\{name}-{i}.png", arr, cmap='gray')  # 定义命名规则，保存图片为灰色模式
+            test_writer.writerow(
+                [f"{name}-{i}.png", f"{catergory_id}"])
+        Log(f"{name}-test_data, finish")
+
+
+def CopyFile(src_file, dst_file):
+    if not os.path.isfile(src_file):
+        Log(src_file, "not exist")
+    else:
+        fpath, fname = os.path.split(dst_file)  # 分离文件名和路径
+        if not os.path.exists(fpath):
+            os.makedirs(fpath)  # 创建路径
+        shutil.copyfile(src_file, dst_file)  # 复制文件
+        Log("copy finished")
 
 
 if __name__ == "__main__":
-    # with open(npy_dir + "/classes.txt") as f:
-    #     names = f.read().split()
-    #     file_data = open(f"{dest_dir}data.csv", 'w', newline='')
-    #     file_writer = csv.writer(file_data)
-    #     file_writer.writerow(["ImageName", "CategoryId"])
-    #     for name in names:
-    #         npy2png(npy_dir, dest_dir, test_dir, name)
-    split_train_and_val_data_set(rf"{DATA_PATH}\data.csv", rf"{DATA_PATH}\train.csv", rf"{DATA_PATH}\val.csv")
+    with open(rf"{dest_dir}\val.csv", 'w', newline='') as file_test:
+        test_writer = csv.writer(file_test)
+        test_writer.writerow(["ImageName", "CategoryId"])
+    with open(rf"{dest_dir}\train.csv", 'w', newline='') as file_train:
+        train_writer = csv.writer(file_train)
+        train_writer.writerow(["ImageName", "CategoryId"])
+    with open(npy_dir + r"\classes.txt") as f:
+        names = f.read().split()
+        for i in range(len(names)):
+            npy2png(npy_dir, dest_dir, names[i], i + 1, 15000)
+    CopyFile(npy_dir + r"\classes.txt", dest_dir + r"\classes.txt")
+    pass

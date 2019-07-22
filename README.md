@@ -23,9 +23,6 @@ ButingButing
 |    └── val.csv
 ├── data_npy
 |    └── imgs.npy              
-├── test
-|    ├── imgs.png
-|    ├── test.csv
 ├── web
 |    └── webcode...              
 
@@ -43,8 +40,6 @@ ButingButing
 ### `val.py`
 模型准确率验证。
 
-### `test.py`
-在测试集上预测并输出结果。
 
 
 ## 3. 数据集标注格式说明
