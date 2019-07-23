@@ -4,6 +4,9 @@ test
 summary
 model
 log
+tmp.png
+pics
+tempCodeRunnerFile.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

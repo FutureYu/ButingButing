@@ -85,7 +85,7 @@ def model():
 
     # 输出层
     fully_conn_2 = dense(input_data=dropout_fully_conn_1,
-                         output_units=CATEGORY_COUNT, activation=None)
+                         output_units=CATEGORY_COUNT, activation=tf.nn.softmax)
 
     return fully_conn_2
 
@@ -193,4 +193,4 @@ if __name__ == '__main__':
 
     # 开始训练模型
     train_model(learning_rate=0.001, batch_size=32,
-                val_steps=100, max_step=1000000)
+                val_steps=100, max_step=200000)
