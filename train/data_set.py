@@ -146,6 +146,8 @@ def CopyFile(src_file, dst_file):
 
 
 if __name__ == "__main__":
+    if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir)
     with open(rf"{dest_dir}\val.csv", 'w', newline='') as file_test:
         test_writer = csv.writer(file_test)
         test_writer.writerow(["ImageName", "CategoryId"])

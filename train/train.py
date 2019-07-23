@@ -72,15 +72,15 @@ def model():
 
     w_conv_2 = init_w([3, 3, 32, 64])
     b_conv_2 = init_b([64])
-    conv_2 = conv(conv_1, w_conv_2, b_conv_2, stride=2)
+    conv_2 = conv(pool(conv_1), w_conv_2, b_conv_2, stride=2)
 
     w_conv_3 = init_w([3, 3, 64, 128])
     b_conv_3 = init_b([128])
-    conv_3 = conv(conv_2, w_conv_3, b_conv_3, stride=2)
+    conv_3 = conv(pool(conv_2), w_conv_3, b_conv_3, stride=2)
 
     # 全连接层
     fully_conn_1 = dense(
-        input_data=conv_3, output_units=256, activation=tf.nn.relu)
+        input_data=pool(conv_3), output_units=256, activation=tf.nn.relu)
     dropout_fully_conn_1 = dropout(fully_conn_1, DROPOUT_RATE)
 
     # 输出层
