@@ -7,6 +7,7 @@ import tensorflow as tf
 import os
 import time
 import tensorflow.contrib.rnn as rnn
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 
 MODEL_PATH = BUTING_PATH + r'\model\recognize.model'

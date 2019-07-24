@@ -9,11 +9,13 @@
 ## 2. 代码说明
 项目结构如下
 ButingButing
-├── train                         
+├── code                         
 |    ├── train.py                  
 |    ├── val.py
-|    ├── test.py               
-|    └── rpi_define.py            
+|    ├── predict.py               
+|    ├── server.py               
+|    ├── rpi_define.py               
+|    └── web_things         
 ├── model
 ├── summary
 ├── data
@@ -23,8 +25,7 @@ ButingButing
 |    └── val.csv
 ├── data_npy
 |    └── imgs.npy              
-├── web
-|    └── webcode...              
+             
 
 ### `rpi_define.py`
 手绘涂鸦识别的一些基本常量定义。
@@ -40,6 +41,8 @@ ButingButing
 ### `val.py`
 模型准确率验证。
 
+### `predict.py`
+图像识别接口
 
 
 ## 3. 数据集标注格式说明

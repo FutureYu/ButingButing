@@ -51,7 +51,7 @@ class DataSet(object):
         :param path: 图片路径
         :return: 图像数据矩阵
         """
-        return (io.imread(path, as_gray = True) / 255.0).reshape([28, 28, 1])
+        return (io.imread(path, as_gray=True) / 255.0).reshape([28, 28, 1])
 
     @staticmethod
     def id_to_onehot(category_id):
@@ -95,8 +95,8 @@ class DataSet(object):
         ndx_list = self._get_batch_indices(size)
         data = [DataSet.read_image(self.csv_data["ImagePath"][ndx])
                 for ndx in ndx_list]
-        label = [DataSet.id_to_onehot(self.csv_data["CategoryId"][ndx]) 
-                for ndx in ndx_list]
+        label = [DataSet.id_to_onehot(self.csv_data["CategoryId"][ndx])
+                 for ndx in ndx_list]
         return data, label
 
     def __iter__(self):
@@ -114,21 +114,25 @@ def npy2png(npy_dir, dest_dir, name, catergory_id, train_num):
         os.makedirs(npy_dir)
     if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
+        
     with open(fr"{dest_dir}\train.csv", 'a', newline='') as file_train:
         train_writer = csv.writer(file_train)
         con_arr = np.load(f"{npy_dir}\{name}.npy")  # 读取npy文件
         for i in range(0, train_num):  # 循环数组 最大值为图片张数  三维数组分别是：图片张数
             arr = con_arr[i, :]  # 获得第i张的单一数组
             arr = arr.reshape([28, 28])
-            plt.imsave(rf"{dest_dir}\{name}-{i}.png", arr, cmap='gray')  # 定义命名规则，保存图片为灰色模式
+            plt.imsave(rf"{dest_dir}\{name}-{i}.png", arr,
+                       cmap='gray')  # 定义命名规则，保存图片为灰色模式
             train_writer.writerow([f"{name}-{i}.png", f"{catergory_id}"])
         Log(f"{name}-train_data, finish")
+
     with open(rf"{dest_dir}\val.csv", 'a', newline='') as file_test:
         test_writer = csv.writer(file_test)
         for i in range(train_num, train_num + 1000):  # 循环数组 最大值为图片张数  三维数组分别是：图片张数
             arr = con_arr[i, :]  # 获得第i张的单一数组
             arr = arr.reshape([28, 28])
-            plt.imsave(rf"{dest_dir}\{name}-{i}.png", arr, cmap='gray')  # 定义命名规则，保存图片为灰色模式
+            plt.imsave(rf"{dest_dir}\{name}-{i}.png", arr,
+                       cmap='gray')  # 定义命名规则，保存图片为灰色模式
             test_writer.writerow(
                 [f"{name}-{i}.png", f"{catergory_id}"])
         Log(f"{name}-test_data, finish")
