@@ -1,6 +1,7 @@
 tensorflow
-csv
 pandas
 opencv-python
 scikit-image
 numpy
+flask
+pillow
