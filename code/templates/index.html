@@ -18,13 +18,13 @@
 			<span></span>
 		</div>
 	</div>
-	<nav id="global-nav" style="color: #212121;font-size: 40px;">
+	<div id="global-nav" style="color: #212121;font-size: 40px; text-align: center;">
 		<ul id="prob">
 			<li><a href="#"></a></li>
 			<li><a href="#"></a></li>
 			<li><a href="#"></a></li>
 		</ul>
-	</nav>	
+	</div>	
 	<div class="container" style="margin-top: 100px;">
   		<div class="row">
   			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -47,12 +47,14 @@
     <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
     <script src="../static/dist/js/bootstrap.min.js"></script>
 	<script src="../static/dist/js/literallycanvas-core.min.js"></script>
+	<script src="../static/dist/js/echarts.min.js"></script>
     <script>
     	var lc = LC.init(document.getElementsByClassName('my-drawing')[0], {
 			backgroundColor: "WhiteSmoke",
 			imageSize: {width: 600, height: 600},
     		defaultStrokeWidth: 20
-    	});
+		});
+		// 基于准备好的dom，初始化echarts实例
 		/*
 		var localStorageKey = 'drawing'
     	if (localStorage.getItem(localStorageKey)) {
@@ -95,6 +97,13 @@
 						});
 					}
         		},
+				error:function(){
+					$('#submit').html('提交');
+					$('body').toggleClass('open');
+					$('#prob li:nth-child(1)').html("上传的图片被外星人抓走了……");
+					$('#prob li:nth-child(2)').html('');
+					$('#prob li:nth-child(3)').html('');
+				},
       		});
     	});
 	</script>
