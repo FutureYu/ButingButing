@@ -1,12 +1,11 @@
 data_npy
-data
-test
+data/*.png
+data/*.csv
 summary
-model
 log
-tmp.png
 received
 tempCodeRunnerFile.py
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
