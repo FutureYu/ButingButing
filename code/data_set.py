@@ -161,6 +161,6 @@ if __name__ == "__main__":
     with open(npy_dir + r"\classes.txt") as f:
         names = f.read().split()
         for i in range(len(names)):
-            npy2png(npy_dir, dest_dir, names[i], i + 1, 15000)
+            npy2png(npy_dir, dest_dir, names[i], i + 1, 5000)
     CopyFile(npy_dir + r"\classes.txt", dest_dir + r"\classes.txt")
     pass

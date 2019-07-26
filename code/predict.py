@@ -14,7 +14,7 @@ import sys
 from skimage import io, transform
 import json
 import matplotlib.pyplot as plt
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+import random
 
 class_path = BUTING_PATH + r"\data\classes.txt"
 
@@ -48,11 +48,18 @@ class Predictor:
         with open(class_path, "r") as f:
             contents = f.readlines()
             for i, content in enumerate(contents):
+                if i > 9:
+                    break
                 res.append({"name": content.split()[
                            0], "prob": int(pred[0][i] * 10000)})
 
         res = sorted(res, key=lambda res: float(res['prob']), reverse=True)
-        return {"size": len(pred[0]), "res": res}
+        simpics = get_similar_pics(image_path, [res[0]["name"], res[1]["name"], res[2]["name"]])
+        nums = random.sample(range(0, 100), 10)
+        otherpics = []
+        for num in nums:
+            otherpics.append(rf"{BUTING_PATH}\{data_sp}\{res[0]['name']}\{num}.png")
+        return {"size": len(pred[0]), "res": res, "simpic": simpics, "otherpic": otherpics}
 
 
 def resize(image_path):
@@ -76,20 +83,10 @@ def resize(image_path):
                 if y > bottom:
                     bottom = y
 
-    # 判断黑白，数据集黑底白字
-    black = 0
-    white = 0
+    # 反转颜色
     for y in range(height):
         for x in range(width):
-            if img[y, x] < 128:
-                black += 1
-            else:
-                white += 1
-    if white > black:
-        # 反转颜色
-        for y in range(height):
-            for x in range(width):
-                img[y, x] = 255 - img[y, x]
+            img[y, x] = 255 - img[y, x]
 
     # 计算几何中心坐标
     centerX = (left + right) // 2
@@ -110,6 +107,46 @@ def resize(image_path):
     output = transform.resize(img, (IMAGE_WIDTH, IMAGE_WIDTH))
     plt.imsave(dst_image_path, output, cmap='gray')
     return dst_image_path
+
+def count_feature(image_path):
+    '''
+    计算特征值
+    '''
+    ori_img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    feature_img = transform.resize(ori_img, (IMAGE_WIDTH, IMAGE_WIDTH))
+    mean_value = np.mean(np.mean(feature_img))
+    feature = feature_img >= mean_value
+    feature = np.matrix(feature, np.int8)
+    return feature.reshape([-1])
+
+def get_similar_pics(image_path, names):
+    # 计算特征
+    feature = count_feature(image_path)
+    # 读取三个文件夹的npy，并依次比较距离，选取最大的
+    res = []
+    for name in names:
+        con_arr = np.load(rf"{BUTING_PATH}\{data_sp}\{name}\feature.npy")  # 读取npy文件
+        index = 0    
+        for i in range(0, 100):  # 循环数组
+            arr = con_arr[i, :]  # 获得第i张的单一数组
+            min = 28*28
+            count = 0
+            for j in range(28*28):
+                if arr[j] != feature[j]:
+                    count += 1
+            if count < min:
+                count = min
+                index = i
+        res.append(rf"{BUTING_PATH}\data_sp\{name}\{index}.png")
+    return res
+
+
+def get_features(name):
+    arr = []
+    for i in range(100):
+        path = rf"{BUTING_PATH}\data_sp\{name}\{i}.png"
+        arr.append(count_feature(path))
+    np.save(arr)
 
 
 if __name__ == '__main__':
