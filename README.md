@@ -8,6 +8,7 @@
 
 ## 2. 代码说明
 项目结构如下
+```
 ButingButing
 ├── code                         
 |    ├── train.py                  
@@ -15,6 +16,7 @@ ButingButing
 |    ├── predict.py               
 |    ├── server.py               
 |    ├── rpi_define.py               
+|    ├── feature.py               
 |    └── web_things         
 ├── model
 ├── summary
@@ -24,7 +26,10 @@ ButingButing
 |    ├── train.csv
 |    └── val.csv
 ├── data_npy
-|    └── imgs.npy              
+|    └── imgs.npy 
+├── data_ndjson
+|    └── imgs.ndjson    
+```          
              
 
 ### `rpi_define.py`
@@ -43,6 +48,9 @@ ButingButing
 
 ### `predict.py`
 图像识别接口
+
+### `feature.py`
+提取相对高清图片
 
 
 ## 3. 数据集标注格式说明

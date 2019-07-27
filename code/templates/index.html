@@ -1,3 +1,10 @@
+<!--
+ * @Author: LitMonkey
+ * @Date: 2019-07-25 12:59:16
+ * @LastEditTime: 2019-07-27 11:42:17
+ * @Blog: http://www.litmonkey.cn:81
+ * @一个小白的逆袭之旅。
+ -->
 <!DOCTYPE html>
 <html lang="zh-CN">
   <head>
@@ -20,9 +27,9 @@
 	</div>
 	<div id="global-nav" style="color: #212121;font-size: 40px; text-align: center;">
 		<ul id="prob">
-			<li><a href="#"></a></li>
-			<li><a href="#"></a></li>
-			<li><a href="#"></a></li>
+			<li>你画出的图片<br/><img></li>
+			<li></li>
+			<li>其他人所画图片<br/><img><img></li>
 		</ul>
 	</div>	
 	<div class="container" style="margin-top: 100px;">
@@ -47,7 +54,6 @@
     <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
     <script src="../static/dist/js/bootstrap.min.js"></script>
 	<script src="../static/dist/js/literallycanvas-core.min.js"></script>
-	<script src="../static/dist/js/echarts.min.js"></script>
     <script>
     	var lc = LC.init(document.getElementsByClassName('my-drawing')[0], {
 			backgroundColor: "WhiteSmoke",
@@ -87,6 +93,7 @@
 		        success: function(result) {
     		    	$('#submit').html('提交');
 					$('body').toggleClass('open');
+					/*
 					for(var i = 0; i < 3; i++){
 						var str = "(" + (i + 1) + ")";
 						var prob = result.res[i].prob / 100;
@@ -95,7 +102,18 @@
 						$('#prob li:nth-child' + str).html(function(){
 							return output;
 						});
-					}
+						//$('#prob li:nth-child' + str + ' img').attr('src',"../static/img/20190725-130045_resized.png");
+					}*/
+					console.log(result);
+					$('#prob li:nth-child(1) img').attr('src', result["oripic"]);
+
+					$('#prob li:nth-child(2)').text("我们猜测你画的是" + result['res'][0].name);
+					/*
+					$('#prob li:nth-child(2) img:nth-child(2)').attr('src', result["simpic"][1]);
+					$('#prob li:nth-child(2) img:nth-child(3)').attr('src', result["simpic"][2]);*/
+
+					$('#prob li:nth-child(3) img:nth-child(2)').attr('src', result["otherpic"][0]);
+					$('#prob li:nth-child(3) img:nth-child(3)').attr('src', result["otherpic"][1]);
         		},
 				error:function(){
 					$('#submit').html('提交');

@@ -15,6 +15,7 @@ from skimage import io, transform
 import json
 import matplotlib.pyplot as plt
 import random
+import shutil
 
 class_path = BUTING_PATH + r"\data\classes.txt"
 
@@ -37,6 +38,7 @@ class Predictor:
         :return: json
         """
         # 修改图片
+        ori_path = image_path
         image_path = resize(image_path)
 
         # 判断
@@ -48,18 +50,23 @@ class Predictor:
         with open(class_path, "r") as f:
             contents = f.readlines()
             for i, content in enumerate(contents):
-                if i > 9:
-                    break
-                res.append({"name": content.split()[
-                           0], "prob": int(pred[0][i] * 10000)})
+                res.append({"name": content.split()[0], "prob": int(pred[0][i] * 10000)})
 
         res = sorted(res, key=lambda res: float(res['prob']), reverse=True)
-        simpics = get_similar_pics(image_path, [res[0]["name"], res[1]["name"], res[2]["name"]])
-        nums = random.sample(range(0, 100), 10)
+
+        # 选取其他人画的
+        nums = random.sample(range(0, 10), 2)
         otherpics = []
         for num in nums:
-            otherpics.append(rf"{BUTING_PATH}\{data_sp}\{res[0]['name']}\{num}.png")
-        return {"size": len(pred[0]), "res": res, "simpic": simpics, "otherpic": otherpics}
+            otherpics.append(rf"..\static\dist\img\sp\{res[0]['name']}-{num}.png")
+        file_name = image_path.split(r"\received")[1]
+        ori_img = cv2.imread(ori_path, cv2.IMREAD_GRAYSCALE)
+        ori_img = cv2.resize(ori_img, (200, 200))
+        if not os.path.exists(rf"{BUTING_PATH}\code\static\dist\img\sh"):
+            os.makedirs(rf"{BUTING_PATH}\code\static\dist\img\sh")
+        plt.imsave(rf"{BUTING_PATH}\code\static\dist\img\sh" + file_name, ori_img, cmap='gray')
+        oripics = [r"..\static\dist\img\sh" + file_name]
+        return {"size": len(pred[0]), "res": res, "otherpic": otherpics, "oripic": oripics}
 
 
 def resize(image_path):
@@ -107,46 +114,6 @@ def resize(image_path):
     output = transform.resize(img, (IMAGE_WIDTH, IMAGE_WIDTH))
     plt.imsave(dst_image_path, output, cmap='gray')
     return dst_image_path
-
-def count_feature(image_path):
-    '''
-    计算特征值
-    '''
-    ori_img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-    feature_img = transform.resize(ori_img, (IMAGE_WIDTH, IMAGE_WIDTH))
-    mean_value = np.mean(np.mean(feature_img))
-    feature = feature_img >= mean_value
-    feature = np.matrix(feature, np.int8)
-    return feature.reshape([-1])
-
-def get_similar_pics(image_path, names):
-    # 计算特征
-    feature = count_feature(image_path)
-    # 读取三个文件夹的npy，并依次比较距离，选取最大的
-    res = []
-    for name in names:
-        con_arr = np.load(rf"{BUTING_PATH}\{data_sp}\{name}\feature.npy")  # 读取npy文件
-        index = 0    
-        for i in range(0, 100):  # 循环数组
-            arr = con_arr[i, :]  # 获得第i张的单一数组
-            min = 28*28
-            count = 0
-            for j in range(28*28):
-                if arr[j] != feature[j]:
-                    count += 1
-            if count < min:
-                count = min
-                index = i
-        res.append(rf"{BUTING_PATH}\data_sp\{name}\{index}.png")
-    return res
-
-
-def get_features(name):
-    arr = []
-    for i in range(100):
-        path = rf"{BUTING_PATH}\data_sp\{name}\{i}.png"
-        arr.append(count_feature(path))
-    np.save(arr)
 
 
 if __name__ == '__main__':
