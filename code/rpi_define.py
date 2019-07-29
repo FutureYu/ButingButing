@@ -2,7 +2,7 @@
 
 # 分类
 import time
-CATEGORY_COUNT = 20
+CATEGORY_COUNT = 50
 
 # 图像大小
 IMAGE_WIDTH = 28

@@ -72,15 +72,15 @@ def model():
 
     w_conv_2 = init_w([3, 3, 32, 64])
     b_conv_2 = init_b([64])
-    conv_2 = conv(pool(conv_1), w_conv_2, b_conv_2, stride=2)
+    conv_2 = conv(conv_1, w_conv_2, b_conv_2, stride=2)
 
     w_conv_3 = init_w([3, 3, 64, 128])
     b_conv_3 = init_b([128])
-    conv_3 = conv(pool(conv_2), w_conv_3, b_conv_3, stride=2)
+    conv_3 = conv(conv_2, w_conv_3, b_conv_3, stride=2)
 
     # 全连接层
     fully_conn_1 = dense(
-        input_data=pool(conv_3), output_units=256, activation=tf.nn.relu)
+        input_data=conv_3, output_units=256, activation=tf.nn.relu)
     dropout_fully_conn_1 = dropout(fully_conn_1, DROPOUT_RATE)
 
     # 输出层
@@ -171,7 +171,7 @@ def train_model(learning_rate=0.001, batch_size=32, dropout_rate=0.2, val_steps=
                 [merge_summary, train_op, loss, accuracy],
                 feed_dict={INPUT: batch_x, LABEL: batch_y, DROPOUT_RATE: dropout_rate})
             Log('step [%d]  loss=%.8f  accuracy=%.8f' %
-                (step, train_loss, train_acc))
+               (step, train_loss, train_acc))
             # 写入日志
             train_writer.add_summary(train_summary, step)
 
@@ -192,5 +192,5 @@ if __name__ == '__main__':
         os.makedirs(MODEL_DIR)
 
     # 开始训练模型
-    train_model(learning_rate=0.001, batch_size=32,
-                val_steps=100, max_step=200000)
+    train_model(learning_rate=0.001, batch_size=256,
+                val_steps=100, max_step=500000)
